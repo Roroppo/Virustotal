@@ -95,7 +95,7 @@ targeturl = self.url
 url = self.analyse_url  
 apikey = self.apikey  
 
-
+# Call /url/scan API
 parameters = urllib.parse.urlencode({"apikey": apikey,"targeturl": self.url}).encode("utf-8")  
 
 response = urllib.request.urlopen("https://www.virustotal.com/vtapi/v2/url/scan", data=parameters)  
@@ -107,11 +107,13 @@ if not json:
 print("Error in calling /url/scan API")  
 return 3  
 
+# Save scan_id from /url/scan API response
 scan_id = json["scan_id"]  
 
 print("Wait 10 seconds...")  
 time.sleep(10)  
 
+# Call /url/report API
 print("Waiting response 'GET /url/report'")  
 
 query = urllib.parse.urlencode({"apikey": self.apikey, "resource": scan_id})  
