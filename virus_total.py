@@ -74,7 +74,7 @@ class Analysis:
 
 	def virustotal(self):
 		
-		self.url = str(self.cursor.execute('select short_url from short_urls where id = %d'% (self.analysis_id)))
+		self.url = str(self.cursor.execute('select short_url from short_urls where id = + %d' % (self.analysis_id)))
 		#現在の時間
 		now = datetime.datetime.now()
 
@@ -88,13 +88,13 @@ class Analysis:
 		for m in range(mMax):
 			
 			#now.minuteとuse_timeが一緒
-			self.cursor.execute('select use_time from virustotal_api_keys where id = %d'% (m+1))
+			self.cursor.execute('select use_time from virustotal_api_keys where id = %d' % (m+1))
 			
 
 			if str(now.minute) == str(record[0]):
 
 				#この分に使った回数が4回かrecord = self.cousor.fetchone()
-				self.cursor.execute('select use_numbers from virustotal_api_keys where id = %d '% (m+1))
+				self.cursor.execute('select use_numbers from virustotal_api_keys where id = %d ' % (m+1))
 				record = self.cursor.fetchone()
 
 				if int(record[0]) == 4:
@@ -107,15 +107,15 @@ class Analysis:
 					continue
 				else: break 
 			else:
-				self.cursor.execute('update virustotal_api_keys set use_numbers = 0 where id = %d'% (m+1))		
+				self.cursor.execute('update virustotal_api_keys set use_numbers = 0 where id = %d' % (m+1))		
 				break	 	
 
-		self.cursor.execute('select api_key from virustotal_api_keys where id = %d'% (m+1))
+		self.cursor.execute('select api_key from virustotal_api_keys where id = %d' % (m+1));
 		record = self.cursor.fetchone()
 		self.apikey = str(record[0])	
 		self.__calc()
 		#table virustotal_api_keysのuse_time,use_numbersにnow,use_number+1をして格納
-		self.cursor.execute('update virustotal_api_keys set use_time = now(),use_numbers += 1 where id = %d'% (m+1))
+		self.cursor.execute('update virustotal_api_keys set use_time = now(),use_numbers = use_numbers + 1 where id = %d' % (m+1))
 
 	def __calc(self):
 
@@ -133,30 +133,19 @@ class Analysis:
 
 
 		#クライアントの要求処理
-		request = urllib.request.Request(url)
+		request = urllib.request.Request(url,data)
+
 		#リクエスト送信
-		response = urllib.request.urlopen(request,data)
+		response = urllib.request.urlopen(request)#.decode('utf-8')
 
 		#コンテンツを抽出
 		json_str = response.read().decode('utf-8')
+
 		#Json形式からpythonオブジェクトに変換
 		decjson = json.loads(json_str)
 
-		self.cursor.execute('update analysis_results set search_time =now(), analysis_result = %d, updated_at = now()'% (decjson["positives"]))
-		
-		
-		#for k in decjson.keys():
-			#print (k,decjson[k])
+		print str(decjson ["positives"])
+		#m2 = "url"	
+		#print(decjson["m2"])
 
-		#print decjson["scan_data"] + ",",
-		#print decjson["url"] + ",",
-		#print str(decjson["positives"]) + ",",
-		#print str(decjson["total"]) 
-
-		#返り値不正数とカウント
-	
-	#time.sleep(1)	
-#c = 0 
-#url1 ="https://www.yahoo.co.jp/"
-#n,c = virustotal(c,url1)
-#print n 
+		#self.cursor.execute('update analysis_results set search_time =now(), analysis_result = %s, updated_at =now()' % str(decjson ["positives"]))
