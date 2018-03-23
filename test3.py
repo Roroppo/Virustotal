@@ -105,7 +105,7 @@ json = _json.loads(response.read().decode('utf-8'))
 pprint.pprint(json)  
 if not json:  
 print("Error in calling /url/scan API")  
-return 3  
+return 1  
 
 # Save scan_id from /url/scan API response
 scan_id = json["scan_id"]  
@@ -128,7 +128,7 @@ pprint.pprint(json)
 
 if not json:  
 print("Error in calling /url/report API")  
-return 4  
+return 2  
 
 return 0  
 
